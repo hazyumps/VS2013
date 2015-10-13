@@ -23,7 +23,7 @@ namespace GmailQuickstart
             UserCredential credential;
 
             using (var stream =
-                new FileStream("my.json", FileMode.Open, FileAccess.Read))
+                new FileStream("C:\\Files\\my.json", FileMode.Open, FileAccess.Read))
             {
                 string credPath = System.Environment.GetFolderPath(
                     System.Environment.SpecialFolder.Personal);
@@ -75,7 +75,7 @@ namespace GmailQuickstart
             {
                 foreach (var messageItem in messages)
                 {
-                    Console.WriteLine("{0}", messageItem.La);
+                    Console.WriteLine("{0}", messageItem.LabelIds);
                 }
             }
             else
