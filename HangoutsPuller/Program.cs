@@ -8,15 +8,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-//using System.Threading;
 using System.Threading.Tasks;
 
-namespace GmailQuickstart
+namespace HangoutPuller
 {
     class Program
     {
         static string[] Scopes = { GmailService.Scope.GmailReadonly };
-        static string ApplicationName = "Gmail API .NET Quickstart";
+        static string ApplicationName = "HangoutPuller";
 
         static void Main(string[] args)
         {
@@ -44,90 +43,43 @@ namespace GmailQuickstart
                 HttpClientInitializer = credential,
                 ApplicationName = ApplicationName,
             });
-            string userId = "me";
-            string threadId;
-            string messageId = "15066e0e7a581e13";
-            string query = "in:chats";
-            string labelId = "CHAT";
-            string name = "Jason Douthitt";
-            List<Thread> t = ListThread(service, userId, labelId);
 
+            //Define inputs 
+            //'me' is special for being current logged in user
+            //
+            //Using the labelId of CHAT we pull all hangouts history
+            //query will need to be modified in the future to be dynamic based on the Sharepoint site
+            string userId = "me";
+            string query = "from:ben.s.lerch@gmail.com ";
+            string labelId = "CHAT";
+
+            //Call the ListThread method to pull all threadIds based on the criteria listed
+            List<Thread> t = ListThread(service, userId, labelId,query);
+
+            //Enumerate through the list
             foreach (var x in t)
             {
+                //Call the GetThread method to pull actual messages based on the threadIds found in the previous list
                 Thread th = GetThread(service, userId, x.Id);
-                foreach (var i in th.Messages)
+
+                //Enumerate the message contents
+                foreach (var y in th.Messages)
                 {
-                    foreach (var y in i.Payload.Headers)
+                    //Search the headers for the name of the sender and highlight it in RED so I can see that shit
+                    foreach (var z in y.Payload.Headers)
                     {
-                        if (y.Value.StartsWith(name))
-                        {
-                            threadId = i.ThreadId;
-
-                            Console.WriteLine(threadId);
-
-                            //Console.ForegroundColor = ConsoleColor.Red;
-                            //Console.WriteLine(y.Value);
-                            //Console.ForegroundColor = ConsoleColor.White;
-                            //Console.WriteLine(i.Snippet);
-                            
-                        }
-                        
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine(z.Value);
                     }
-                    //Console.ForegroundColor = ConsoleColor.White;
-                    //Console.WriteLine(i.Snippet);
+
+                    //Write out the chat to the console window!
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine(y.Snippet);
                 }
+
             }
 
-            //Console.WriteLine(threadId);
-            //Thread th2 = GetThread(service,userI)
-
-            //Practice Recursion
-            //foreach (var x in t)
-            //{
-               
-            //    foreach (var z in x.Messages)
-            //    {
-            //        if (labelId.Equals(z.LabelIds))
-            //        {
-            //            Thread th = GetThread(service, userId, z.ThreadId);
-            //            foreach (var i  in th.Messages)
-            //            {
-            //                foreach (var y in i.Payload.Headers)
-            //                {
-            //                    Console.ForegroundColor = ConsoleColor.Red;
-            //                    Console.WriteLine(y.Value);
-            //                }
-            //                Console.ForegroundColor = ConsoleColor.White;
-            //                Console.WriteLine(i.Snippet);
-            //            }
-
-            //        }
-            //    }
-            //}
-
-
-            //foreach (var v in t)
-            //{
-            //    Console.WriteLine(v.Snippet);
-            //}
-
-            //Thread th = GetThread(service,userId,threadId);
-
-            //foreach (var i in th.Messages)
-            //{
-            //    foreach (var y in i.Payload.Headers)
-            //    {
-            //        Console.ForegroundColor = ConsoleColor.Red;
-            //        Console.WriteLine(y.Value);
-            //    }
-            //    Console.ForegroundColor = ConsoleColor.White;
-            //    Console.WriteLine( i.Snippet );
-            //}
-
-            //ListMessages(service, userId, query);
-
-            //Message msg = GetMessage(service, userId, messageId);
-            //Console.WriteLine(msg.Snippet);
+            
             Console.ReadLine();
         }
 
@@ -184,11 +136,12 @@ namespace GmailQuickstart
         }
 
 
-        public static List<Thread> ListThread(GmailService service, String userId, String labelIds)
+        public static List<Thread> ListThread(GmailService service, String userId, String labelIds, String query)
         {
             List<Thread> result = new List <Thread>();
             UsersResource.ThreadsResource.ListRequest request = service.Users.Threads.List(userId);
             request.LabelIds = labelIds;
+            request.Q = query;
 
             do
             {
