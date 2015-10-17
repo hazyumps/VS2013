@@ -54,7 +54,7 @@ namespace HangoutPuller
             string labelId = "CHAT";
 
             //Call the ListThread method to pull all threadIds based on the criteria listed
-            List<Thread> t = ListThread(service, userId, labelId, query);
+            List<Thread> t = ListThread(service, userId, labelId,query);
 
             //Enumerate through the list
             foreach (var x in t)
@@ -79,7 +79,7 @@ namespace HangoutPuller
 
             }
 
-
+            
             Console.ReadLine();
         }
 
@@ -138,7 +138,7 @@ namespace HangoutPuller
 
         public static List<Thread> ListThread(GmailService service, String userId, String labelIds, String query)
         {
-            List<Thread> result = new List<Thread>();
+            List<Thread> result = new List <Thread>();
             UsersResource.ThreadsResource.ListRequest request = service.Users.Threads.List(userId);
             request.LabelIds = labelIds;
             request.Q = query;
@@ -160,11 +160,11 @@ namespace HangoutPuller
                 }
 
             } while (!String.IsNullOrEmpty(request.PageToken));
-
+            
             return result;
         }
 
-
+       
     }
 
 }
